@@ -9,8 +9,8 @@ frequently used as intermediates for analysis of fly behaviour.
 ```r
 # install
 if (!require("devtools")) install.packages("devtools") 
-devtools::install_github("jefferis/elmr")
+devtools::install_github("jefferis/fmfio")
 
 # use
-library(elmr)
+library(fmfio)
 ```
