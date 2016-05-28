@@ -5,25 +5,25 @@
 #' movie file.
 #' @export
 read.ufmf.header <- function(x) {
-  con <- file(x, open = "rb")
-  on.exit(close(con))
-  magic=readChar(con, nchars = 4, useBytes = T)
+  h=list()
+  h$con <- file(x, open = "rb")
+  on.exit(close(h$con))
+  magic=readChar(h$con, nchars = 4, useBytes = T)
   if(!identical(magic, 'ufmf'))
     stop("This is not a ufmf file!")
 
-  h=list()
-  h$version=readBin(con, what=integer(), n=1L, size = 4L)
+  h$version=readBin(h$con, what=integer(), n=1L, size = 4L)
   if(!isTRUE(h$version%in%2:4))
     stop("ufmf version must be between 2 and 4!")
 
-  h$indexloc=readBin(con,what=integer(), n=1L, size=8L)
-  h$max_imdims=readBin(con, what=integer(), n=2L, size=2L)
+  h$indexloc=readBin(h$con,what=integer(), n=1L, size=8L)
+  h$max_imdims=readBin(h$con, what=integer(), n=2L, size=2L)
 
-  if(h$version >= 4)  h$is_fixed_size = readBin(con, what=1L, size=1L)
+  if(h$version >= 4)  h$is_fixed_size = readBin(h$con, what=1L, size=1L)
   else h$is_fixed_size = FALSE
 
-  l = readBin(con,what = 1L, size = 1L);
-  h$coding = readChar(con, nchars = l)
+  l = readBin(h$con,what = 1L, size = 1L);
+  h$coding = readChar(h$con, nchars = l)
   if(identical(tolower(h$coding), "mono8")){
     h$ncolors = 1L
     h$bytes_per_pixel = 1L
@@ -33,8 +33,10 @@ read.ufmf.header <- function(x) {
   } else {
     stop("Unknown encoding!")
   }
-  seek(con, h$indexloc)
-  index=read_dict(con)
+  h$dataclass = integer()
+
+  seek(h$con, h$indexloc)
+  index=read_dict(h$con)
 
   # frame number to loc
   h$frame2file = index$frame$loc
