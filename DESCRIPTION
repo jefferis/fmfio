@@ -3,7 +3,8 @@ Type: Package
 Title: Read the 'FlyMovieFormat' (fmf) video format
 Version: 0.1
 Date: 2016-05-25
-Author: Gregory Jefferis
+Author: Gregory Jefferis and The Caltech Ethomics Project (copyright holder
+    for original Matlab ufmf code which was translated/adapted to R)
 Maintainer: Gregory Jefferis <jefferis@gmail.com>
 Description: R support for the 'FlyMovieFormat' video originally developed by
     Andrew Straw and colleagues, initially at Caltech. Presently this provides
