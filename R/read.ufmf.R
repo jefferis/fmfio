@@ -34,7 +34,38 @@ read.ufmf.header <- function(x) {
     stop("Unknown encoding!")
   }
   seek(con, h$indexloc)
-  h$index=read_dict(con)
+  index=read_dict(con)
+
+  # frame number to loc
+  h$frame2file = index$frame$loc
+  h$nframes = length(h$frame2file)
+  h$timestamps = index$frame$timestamp
+
+  # mean number to loc
+  h$mean2file = index$keyframe$mean$loc
+  h$nmeans = length(h$mean2file);
+  h$mean_timestamps = index$keyframe$mean$timestamp
+
+  # frame number to mean loc
+  h$frame2mean = findInterval(h$timestamps, h$mean_timestamps)
+  h$frame2meanloc = h$mean2file[h$frame2mean]
+
+  #   # get the frame size: read in the first mean image
+  #   [mean1,header] = ufmf_read_mean(header,'meani',1);
+  #   [header.nr,header.nc,~] = size(mean1);
+  #   header.meandataclass = class(mean1);
+  #
+  #   % cache some means
+  #   % allocate cache
+  #   nmeanscached = min(MAXNMEANSCACHED,header.nmeans);
+  #   header.cachedmeans = zeros([header.ncolors,header.nr,header.nc,nmeanscached],header.dataclass);
+  #   header.cachedmeans_idx = zeros(1,nmeanscached);
+  #   header.cachedmeans_accesstime = -inf(1,nmeanscached);
+  #   % read in the means; this automatically stores them in the cache
+  #   for i = 1:nmeanscached,
+  #   [~,header] = ufmf_read_mean(header,'meani',i,'dopermute',false);
+  #   end
+
   h
 }
 
