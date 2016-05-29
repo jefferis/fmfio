@@ -52,22 +52,25 @@ read.ufmf.header <- function(x) {
   h$frame2mean = findInterval(h$timestamps, h$mean_timestamps)
   h$frame2meanloc = h$mean2file[h$frame2mean]
 
-  #   # get the frame size: read in the first mean image
-  #   [mean1,header] = ufmf_read_mean(header,'meani',1);
-  #   [header.nr,header.nc,~] = size(mean1);
-  #   header.meandataclass = class(mean1);
-  #
-  #   % cache some means
-  #   % allocate cache
-  #   nmeanscached = min(MAXNMEANSCACHED,header.nmeans);
-  #   header.cachedmeans = zeros([header.ncolors,header.nr,header.nc,nmeanscached],header.dataclass);
-  #   header.cachedmeans_idx = zeros(1,nmeanscached);
-  #   header.cachedmeans_accesstime = -inf(1,nmeanscached);
-  #   % read in the means; this automatically stores them in the cache
-  #   for i = 1:nmeanscached,
-  #   [~,header] = ufmf_read_mean(header,'meani',i,'dopermute',false);
-  #   end
+  # get the frame size: read in the first mean image
+  r = ufmf_read_mean(h, meani=1L)
+  h$nr=nrow(r$im)
+  h$nc=ncol(r$im)
+  # nb this stores vector of length 0 but the appropriate storage mode
+  h$meandataclass = r$im[0]
 
+  # cache some means
+  # allocate cache
+  MAXNMEANSCACHED=5L
+  nmeanscached = min(MAXNMEANSCACHED,h$nmeans)
+  h$cachedmeans = array(h$dataclass, c(h$ncolors,h$nr,h$nc,nmeanscached))
+  h$cachedmeans_idx = rep(0L, nmeanscached)
+  h$cachedmeans_accesstime = rep(-Inf, nmeanscached)
+  # read in the means; this automatically stores them in the cache
+  for (i in 1:nmeanscached){
+    r=ufmf_read_mean(h, meani=i, dopermute=F)
+    h=r$header
+  }
   h
 }
 
