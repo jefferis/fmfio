@@ -1,13 +1,17 @@
 #' Read header for a ufmf (compressed FlyMovieFormat) movie
 #'
-#' @param x Path to ufmf file
+#' @param x Path to ufmf file or a connection (which will not be closed)
 #' @return a list containing fields describing the location of frames in the
 #' movie file.
 #' @export
 read.ufmf.header <- function(x) {
   h=list()
-  h$con <- file(x, open = "rb")
-  on.exit(close(h$con))
+  if(inherits(x, "connection")) {
+    h$con=x
+  } else {
+    h$con <- file(x, open = "rb")
+    on.exit(close(h$con))
+  }
   magic=readChar(h$con, nchars = 4, useBytes = T)
   if(!identical(magic, 'ufmf'))
     stop("This is not a ufmf file!")

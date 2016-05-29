@@ -7,7 +7,7 @@
 read.ufmf.header(x)
 }
 \arguments{
-\item{x}{Path to ufmf file}
+\item{x}{Path to ufmf file or a connection (which will not be closed)}
 }
 \value{
 a list containing fields describing the location of frames in the
