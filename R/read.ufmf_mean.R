@@ -17,9 +17,14 @@ ufmf_read_mean <- function(header, meani=NULL, framei=NULL, dopermute=TRUE) {
       idx = rep(F, length(meani))
     }
     for(i in which(idx)){
-      if(is.null(im))
-        im = array(0.0, dim=c(header$ncolors,header$nr,header$nc,length(meani)))
-      im[,,,i]=header$cachedmeans[, , , cachei[i]]
+      if(is.null(im)) {
+        im = header$cachedmeans[, , , cachei[i], drop=FALSE]
+        # remove singleton 4th dimension
+        # NB we can't just drop because 1st dimension is expected,
+        # but may also be singleton
+        dim(im)=dim(im)[-4]
+      }
+      else im[,,,i]=header$cachedmeans[, , , cachei[i]]
       header$cachedmeans_accesstime[i] = Sys.time()
     }
 
@@ -28,13 +33,18 @@ ufmf_read_mean <- function(header, meani=NULL, framei=NULL, dopermute=TRUE) {
       r=ufmf_read_mean_helper(fp, header)
       header=r$header
       if(is.null(im))
-        im = array(0.0, dim=c(dim(r$im),length(meani)))
-      im[,,,i]=r$im
+        im = r$im
+      else im[,,,i]=r$im
     }
     r=list(im=im, header=header)
   }
-  if(dopermute)
-    r$im = aperm(r$im,c(2,3,1,4))
+  if(dopermute){
+    perm=c(2,3,1)
+    if(length(dim(r$im))==4)
+      perm=c(perm,4)
+    r$im = aperm(r$im, perm)
+  }
+
   r
 }
 
