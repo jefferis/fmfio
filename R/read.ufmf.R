@@ -8,7 +8,9 @@ read.ufmf.header <- function(x) {
   h=list()
   if(inherits(x, "connection")) {
     h$con=x
+    h$filename=summary.connection(x)$description
   } else {
+    h$filename=x
     h$con <- file(x, open = "rb")
     on.exit(close(h$con))
   }
