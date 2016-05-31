@@ -24,7 +24,7 @@ A list containing the following elements \itemize{
   \item{bb} The location of the bounding boxes containing data significantly
   different from the background image.
 
-  \item{mu} The mean (bcakground) image corresponding to this frame
+  \item{mu} The mean (background) image corresponding to this frame
 
   }
 }
