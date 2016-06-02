@@ -17,3 +17,4 @@ Url: http://code.astraw.com/projects/motmot/fly-movie-format.html
 RoxygenNote: 5.0.1.9000
 URL: https://github.com/jefferis/fmfio
 BugReports: https://github.com/jefferis/fmfio/issues
+Suggests: testthat
