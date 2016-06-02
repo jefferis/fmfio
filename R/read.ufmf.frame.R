@@ -55,7 +55,10 @@ read.ufmf <- function(x, framei=NULL){
   timestamp = readBin(fp, what=numeric(), size = 8L, endian = 'little')
   if (h$version == 4) {
     # number of points: 2
+    # FIXME R can't read uint32
     npts = readBin(fp, what=integer(), size = 4L, endian = 'little', signed = F)
+  } else {
+    npts = readBin(fp, what=integer(), size = 2L, endian = 'little', signed = F)
   }
   # sparse-matrix
   if (h$is_fixed_size){
@@ -64,20 +67,20 @@ read.ufmf <- function(x, framei=NULL){
     # read sideways
     bb = bb[,c(2,1)]
     data = readBin(fp, what=h$dataclass, n=npts*h$max_width*h$max_height,
-                   size=h$bytes_per_pixel, signed = T, endian = 'little')
+                   size=h$bytes_per_pixel, signed = F, endian = 'little')
     # TODO: handle colorspaces other than MONO8 and RGB8
     data = array(data, c(h$ncolors,npts,h$max_height,h$max_width))
   } else {
     bb = matrix(0,npts,4);
     data = list()
-    for (i in 1:npts) {
+    for (i in seq_len(npts)) {
       bb[i,] = readBin(fp, integer(), n=4, size=2L, signed = T, endian = 'little')
       width = bb[i,4]
       height = bb[i,3]
       # TODO: handle colorspaces other than MONO8 and RGB8
       data[[i]] = readBin(fp, what=h$dataclass,
                           n=width*height*h$ncolors,
-                          size=1L, signed = T, endian = 'little')
+                          size=1L, signed = F, endian = 'little')
       data[[i]] = array(data[[i]],c(h$ncolors, height, width))
     }
     # images are read sideways
@@ -109,9 +112,9 @@ read.ufmf <- function(x, framei=NULL){
     }
   } else {
     # boxes
-    for (i in 1:npts) {
-      xidx=bb[i,2]:bb[i,2]+bb[i,4]-1L
-      yidx=bb[i,1]:bb[i,1]+bb[i,3]-1L
+    for (i in seq_len(npts)) {
+      xidx=bb[i,2]:(bb[i,2]+bb[i,4]-1L)
+      yidx=bb[i,1]:(bb[i,1]+bb[i,3]-1L)
       im[, xidx, yidx] = data[[i]]
     }
   }
