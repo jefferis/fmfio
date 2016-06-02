@@ -33,9 +33,11 @@
 read.ufmf <- function(x, framei=NULL){
   if(is.character(x)){
     x=file(x, open='rb')
+    on.exit(close(x))
   }
-  if(inherits(x, "connection")) h=read.ufmf.header(x)
-  else {
+  if(inherits(x, "connection")) {
+    h=read.ufmf.header(x)
+  } else {
     h=x
   }
 
