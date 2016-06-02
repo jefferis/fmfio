@@ -14,8 +14,11 @@ ufmf_cache_full <- function(e) {
 }
 
 ufmf_cache_store <- function(e, im, id) {
+  # nothing to do if already stored
+  if(ufmf_cache_contains(e, id))
+    return()
   if(ufmf_cache_full(e)){
-    # we need to find oldest
+    # we need to find oldest cached item
     i=which.min(e$accesstimes)
   } else i=length(e$ims)+1
   e$ims[[i]]=im
