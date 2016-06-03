@@ -4,53 +4,28 @@ ufmf_read_mean <- function(header, meani=NULL, framei=NULL, dopermute=TRUE) {
   fp = header$con
   meani = c(meani, header$frame2mean[framei]);
   if(!length(meani)) {
-    r=ufmf_read_mean_helper(fp, header)
+    im=ufmf_read_mean_helper(fp, header)
   } else {
     if(length(meani) > 1) {
-      im = array(0.0, dim=c(header$ncolors,header$nr,header$nc,length(meani)))
-    } else im=NULL
-    if(!is.null(header$cachedmeans_idx)){
-      mih=meani %in% header$cachedmeans_idx
-      idx=any(mih)
-      cachei=which(mih)
-    } else {
-      idx = rep(F, length(meani))
-    }
-    for(i in which(idx)){
-      if(is.null(im)) {
-        im = header$cachedmeans[, , , cachei[i], drop=FALSE]
-        # remove singleton 4th dimension
-        # NB we can't just drop because 1st dimension is expected,
-        # but may also be singleton
-        dim(im)=dim(im)[-4]
+      im = array(header$meandataclass, dim=c(header$ncolors,header$nr,header$nc,length(meani)))
+      for(i in seq_along(meani)){
+        id=meani[i]
+        im[,,,i]=ufmf_read_mean_helper(fp, header, meani = id)
       }
-      else im[,,,i]=header$cachedmeans[, , , cachei[i]]
-      header$cachedmeans_accesstime[i] = Sys.time()
-    }
-
-    for (i in which(!idx)){
-      seek(fp, header$mean2file[meani[i]])
-      r=ufmf_read_mean_helper(fp, header)
-      header=r$header
-      if(is.null(im))
-        im = r$im
-      else im[,,,i]=r$im
-    }
-    r=list(im=im, header=header)
+    } else im=ufmf_read_mean_helper(fp, header, meani = meani)
   }
   if(dopermute){
     perm=c(2,3,1)
-    if(length(dim(r$im))==4)
+    if(length(dim(im))==4)
       perm=c(perm,4)
-    r$im = aperm(r$im, perm)
+    im = aperm(im, perm)
   }
-
-  r
+  im
 }
 
 
 # function [im,header,timestamp] =
-ufmf_read_mean_helper <- function(fp, header) {
+ufmf_read_mean_helper <- function(fp, header, meani=NULL) {
   # % Keyframe file format:
   #   %
   # % 0 (chunk type)                       uchar
@@ -70,11 +45,16 @@ ufmf_read_mean_helper <- function(fp, header) {
   KEYFRAME_CHUNK = 0
   MEAN_KEYFRAME_TYPE = 'mean'
 
-  loc = seek(fp)
-  meani = which(header$mean2file == loc)
-  if(!length(meani))
-    stop('Could not find current file location in mean2file index')
-
+  if(is.null(meani)){
+    loc = seek(fp)
+    meani = which(header$mean2file == loc)
+    if(!length(meani))
+      stop('Could not find current file location in mean2file index')
+  } else {
+    seek(fp, header$mean2file[meani])
+  }
+  im=ufmf_cache_fetch(header$cache, meani)
+  if(!is.null(im)) return(im)
 
   # % chunktype: 1
   chunktype = readBin(fp, what = integer(), size=1L)
@@ -109,13 +89,9 @@ ufmf_read_mean_helper <- function(fp, header) {
     stop('Colorspace ', header$coding,' not yet supported. Only MONO8 and RGB8 allowed.')
 
   dim(im)=c(header$ncolors,height,width)
+  attr(im, 'timestamp')=timestamp
 
   # % store in cache
-  if(!is.null(header$cachedmeans)){
-    idxreplace=which.min(header$cachedmeans_accesstime);
-    header$cachedmeans[, , , idxreplace] = im
-    header$cachedmeans_idx[idxreplace] = meani;
-    header$cachedmeans_accesstime[idxreplace] = Sys.time()
-  }
-  list(im=im, header=header)
+  ufmf_cache_store(header$cache, im, id=meani)
+  im
 }

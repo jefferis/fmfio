@@ -94,9 +94,7 @@ read.ufmf <- function(x, framei=NULL){
   bb[,1:2] = bb[,1:2]+1
 
   # read in the mean image
-  r = ufmf_read_mean(h, framei=framei,dopermute=F)
-  im=r$im
-  h=r$h
+  im = ufmf_read_mean(h, framei=framei,dopermute=F)
   if(!identical(h$dataclass,h$meandataclass))
     storage.mode(im)=storage.mode(h$dataclass)
 
@@ -123,6 +121,6 @@ read.ufmf <- function(x, framei=NULL){
     }
   }
   im = aperm(im, c(3, 2, 1))
-  mu = aperm(r$im, c(3, 2, 1))
+  mu = aperm(im, c(3, 2, 1))
   list(im=im, header=h, timestamp=timestamp, bb=bb, mu=mu)
 }

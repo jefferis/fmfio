@@ -10,7 +10,7 @@ ufmf_cache_init <- function(max=5) {
 }
 
 ufmf_cache_full <- function(e) {
-  length(e$ims)==e$max
+  isTRUE(length(e$ims)==e$max)
 }
 
 ufmf_cache_store <- function(e, im, id) {
