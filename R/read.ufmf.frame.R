@@ -31,15 +31,16 @@
 #' }
 #'
 read.ufmf <- function(x, framei=NULL){
-  if(is.character(x)){
+  if(is.character(x))
     x=file(x, open='rb')
-    on.exit(close(x))
-  }
+
   if(inherits(x, "connection")) {
     h=read.ufmf.header(x)
   } else {
     h=x
+    h$con=file(h$filename, open='rb')
   }
+  on.exit(close(h$con))
 
   FRAME_CHUNK = 1;
   fp = h$con
