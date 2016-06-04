@@ -46,9 +46,8 @@ read.ufmf <- function(x, framei=NULL){
   # read in timestamp: 8
   timestamp = readBin(fp, what=numeric(), size = 8L, endian = 'little')
   if (h$version == 4) {
-    # number of points: 2
-    # FIXME R can't read uint32
-    npts = readBin(fp, what=integer(), size = 4L, endian = 'little', signed = F)
+    # NB R can't read uint32
+    npts = readBin(fp, what=integer(), size = 4L, endian = 'little')
   } else {
     npts = readBin(fp, what=integer(), size = 2L, endian = 'little', signed = F)
   }
