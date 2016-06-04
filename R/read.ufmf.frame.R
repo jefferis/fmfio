@@ -81,8 +81,8 @@ read.ufmf <- function(x, framei=NULL){
   bb[,1:2] = bb[,1:2]+1
 
   # read in the mean image
-  im = ufmf_read_mean(h, framei=framei,dopermute=F)
-  if(!identical(h$dataclass,h$meandataclass))
+  im = ufmf_read_mean(h, framei=framei, dopermute=F)
+  if(!identical(h$dataclass, h$meandataclass))
     storage.mode(im)=storage.mode(h$dataclass)
 
   if (h$is_fixed_size) {
