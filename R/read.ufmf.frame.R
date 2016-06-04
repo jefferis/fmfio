@@ -93,9 +93,8 @@ read.ufmf <- function(x, framei=NULL){
       im[idx] = data
     } else {
       for (i in 1:npts) {
-        # GJ TODO - why -1 here?
-        xidx=bb[i,2]:bb[i,2]+h$max_height-1L
-        yidx=bb[i,1]:bb[i,1]+h$max_width-1L
+        xidx=bb[i,2]:(bb[i,2]+h$max_height-1L)
+        yidx=bb[i,1]:(bb[i,1]+h$max_width-1L)
         im[, xidx, yidx] = data[,i,,]
       }
     }
