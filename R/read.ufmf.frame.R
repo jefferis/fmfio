@@ -88,8 +88,8 @@ read.ufmf <- function(x, framei=NULL){
   if (h$is_fixed_size) {
     # sparse image
     if (h$max_height == 1 && h$max_width == 1) {
-      # FIXME when ncolors>1
-      idx=h$nr*(bb[, 1]-1)+bb[, 2]
+      # FIXME when ncolors
+      idx=sub2ind2(c(h$nr, h$nc), bb[, 1:2], h$ncolors)
       im[idx] = data
     } else {
       for (i in seq_len(npts)) {
@@ -109,4 +109,14 @@ read.ufmf <- function(x, framei=NULL){
   im = aperm(im, c(3, 2, 1))
   attr(im, 'timestamp')=timestamp
   im
+}
+
+# simplified version of matlab/octave sub2ind for 2d indices + number of colours
+sub2ind2 <- function (dims, indices, ncols)
+{
+  k = cumprod(c(1, ncols, dims[1]))
+  i1=rep.int(indices[,1], rep.int(ncols, nrow(indices)))
+  i2=rep.int(indices[,2], rep.int(ncols, nrow(indices)))
+  ndx= 1:ncols + (i1-1)*k[2] + (i2-1)*k[3]
+  ndx
 }
