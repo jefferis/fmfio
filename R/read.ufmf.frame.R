@@ -7,21 +7,8 @@
 #' @param x Either a path to a file on disk, a \code{\link{connection}} or a
 #'   parsed ufmf header object (as returned by \code{\link{read.ufmf.header}})
 #' @param framei Integer index of the frame to read
-#' @return A list containing the following elements \itemize{
-#'
-#'   \item{im} The requested video frame
-#'
-#'   \item{header} The header, which may have been modified
-#'
-#'   \item{timestamp} A timestamp (seconds in current epoch)
-#'
-#'   \item{bb} The location of the bounding boxes containing data significantly
-#'   different from the background image.
-#'
-#'   \item{mu} The mean (background) image corresponding to this frame
-#'
-#'   }
-#'
+#' @return An array containing the image data with the frame timestamp as an
+#'   attribute.
 #' @seealso \code{\link{connection}}, \code{\link{read.ufmf.header}}
 #' @export
 #' @examples
