@@ -88,14 +88,14 @@ read.ufmf <- function(x, framei=NULL){
   if (h$is_fixed_size) {
     # sparse image
     if (h$max_height == 1 && h$max_width == 1) {
-      # GJ TODO: Double check conversion of 2d indices matches matlab sub2ind
-      idx=h$nr*bb[,2]+bb[,1]
+      # FIXME when ncolors>1
+      idx=h$nr*(bb[, 1]-1)+bb[, 2]
       im[idx] = data
     } else {
-      for (i in 1:npts) {
+      for (i in seq_len(npts)) {
         xidx=bb[i,2]:(bb[i,2]+h$max_height-1L)
         yidx=bb[i,1]:(bb[i,1]+h$max_width-1L)
-        im[, xidx, yidx] = data[,i,,]
+        im[, xidx, yidx] = data[[i]]
       }
     }
   } else {
