@@ -83,7 +83,7 @@ ufmf_read_mean_helper <- function(fp, header, meani=NULL) {
   # % actual frame data
   # NB matlab code has header$bytes_per_pixel here, which appears to be the same
   # for currently supported video formats, but surely need not be.
-  im = readBin(fp, what=dtl$type, n=width*height*header$ncolors, size=dtl$length)
+  im = readBin(fp, what=dtl$type, n=width*height*header$ncolors, size=dtl$length, signed = dtl$signed)
   # % TODO: handle colorspaces other than RGB8 and MONO8
   if (!tolower(header$coding)%in% c('mono8','rgb8'))
     stop('Colorspace ', header$coding,' not yet supported. Only MONO8 and RGB8 allowed.')
