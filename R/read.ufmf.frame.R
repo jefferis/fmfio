@@ -122,6 +122,6 @@ read.ufmf <- function(x, framei=NULL){
     }
   }
   im = aperm(im, c(3, 2, 1))
-  mu = aperm(im, c(3, 2, 1))
-  list(im=im, header=h, timestamp=timestamp, bb=bb, mu=mu)
+  attr(im, 'timestamp')=timestamp
+  im
 }
