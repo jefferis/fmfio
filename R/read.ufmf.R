@@ -74,10 +74,6 @@ read.ufmf.header <- function(x) {
   # this means we don't need to keep on getting a modified header back
   # from callee functions.
   h$cache=ufmf_cache_init(nmeanscached)
-  # read in the means; this automatically stores them in the cache
-  for (i in 1:nmeanscached){
-    ufmf_read_mean(h, meani=i, dopermute=F)
-  }
   h
 }
 
