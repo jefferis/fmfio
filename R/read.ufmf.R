@@ -60,23 +60,20 @@ read.ufmf.header <- function(x) {
 
   # get the frame size: read in the first mean image
   r = ufmf_read_mean(h, meani=1L)
-  h$nr=nrow(r$im)
-  h$nc=ncol(r$im)
+  h$nr=nrow(r)
+  h$nc=ncol(r)
   # nb this stores vector of length 0 but the appropriate storage mode
-  h$meandataclass = r$im[0]
+  h$meandataclass = r[0]
 
   # cache some means
   # allocate cache
   MAXNMEANSCACHED=5L
   nmeanscached = min(MAXNMEANSCACHED,h$nmeans)
-  h$cachedmeans = array(h$dataclass, c(h$ncolors,h$nr,h$nc,nmeanscached))
-  h$cachedmeans_idx = rep(0L, nmeanscached)
-  h$cachedmeans_accesstime = rep(-Inf, nmeanscached)
-  # read in the means; this automatically stores them in the cache
-  for (i in 1:nmeanscached){
-    r=ufmf_read_mean(h, meani=i, dopermute=F)
-    h=r$header
-  }
+
+  # nb the cache environment is passed by reference not copied
+  # this means we don't need to keep on getting a modified header back
+  # from callee functions.
+  h$cache=ufmf_cache_init(nmeanscached)
   h
 }
 

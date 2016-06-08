@@ -2,44 +2,46 @@
 #'
 #' @details When reading multiple frames, the recommended idiom is to read the
 #'   header and store it in an object, then pass that object to read.ufmf along
-#'   with the integer index of the required frame.
+#'   with the integer index of the required frame. See \bold{examples}.
+#'
+#'   When present, bounding boxes for foreground pixels are returned in an N x 4
+#'   matrix where the four columns specify (x, y, width , height).
 #'
 #' @param x Either a path to a file on disk, a \code{\link{connection}} or a
 #'   parsed ufmf header object (as returned by \code{\link{read.ufmf.header}})
 #' @param framei Integer index of the frame to read
-#' @return A list containing the following elements \itemize{
-#'
-#'   \item{im} The requested video frame
-#'
-#'   \item{header} The header, which may have been modified
-#'
-#'   \item{timestamp} A timestamp (seconds in current epoch)
-#'
-#'   \item{bb} The location of the bounding boxes containing data significantly
-#'   different from the background image.
-#'
-#'   \item{mu} The mean (background) image corresponding to this frame
-#'
-#'   }
-#'
+#' @param return.boxes Whether to return an matrix describing the position of
+#'   pixels that differ from the mean image (see details, default \code{FALSE}).
+#' @return An array/matrix containing the image data with the frame timestamp
+#'   and (optionally) boxes as attributes. MONO8 data will be returned as width
+#'   x height matrix, while RGB8 data will be a width x height x 3 array.
 #' @seealso \code{\link{connection}}, \code{\link{read.ufmf.header}}
 #' @export
 #' @examples
 #' \dontrun{
 #' h=read.ufmf.header("movie.ufmf")
 #' frames=lapply(1:5, function(i) read.ufmf(h, i))
+#'
+#' ## Show foreground boxes
+#' f5=read.ufmf(h, 5, return.boxes=TRUE)
+#' # plot image with integer pixel indices for x and y axes (rather than 0-1)
+#' image(1:nrow(f5), 1:ncol(f5), f5, useRaster = T)
+#' bb=attr(f5, "boxes")
+#' # plot rectangles for foreground boxes
+#' rect(bb[,1], bb[,2], bb[,1]+bb[,3], bb[,2]+bb[,4])
 #' }
 #'
-read.ufmf <- function(x, framei=NULL){
-  if(is.character(x)){
+read.ufmf <- function(x, framei=NULL, return.boxes=FALSE){
+  if(is.character(x))
     x=file(x, open='rb')
-    on.exit(close(x))
-  }
+
   if(inherits(x, "connection")) {
     h=read.ufmf.header(x)
   } else {
     h=x
+    h$con=file(h$filename, open='rb')
   }
+  on.exit(close(h$con))
 
   FRAME_CHUNK = 1;
   fp = h$con
@@ -58,9 +60,8 @@ read.ufmf <- function(x, framei=NULL){
   # read in timestamp: 8
   timestamp = readBin(fp, what=numeric(), size = 8L, endian = 'little')
   if (h$version == 4) {
-    # number of points: 2
-    # FIXME R can't read uint32
-    npts = readBin(fp, what=integer(), size = 4L, endian = 'little', signed = F)
+    # NB R can't read uint32
+    npts = readBin(fp, what=integer(), size = 4L, endian = 'little')
   } else {
     npts = readBin(fp, what=integer(), size = 2L, endian = 'little', signed = F)
   }
@@ -94,24 +95,21 @@ read.ufmf <- function(x, framei=NULL){
   bb[,1:2] = bb[,1:2]+1
 
   # read in the mean image
-  r = ufmf_read_mean(h, framei=framei,dopermute=F)
-  im=r$im
-  h=r$h
-  if(!identical(h$dataclass,h$meandataclass))
+  im = ufmf_read_mean(h, framei=framei, dopermute=F)
+  if(!identical(h$dataclass, h$meandataclass))
     storage.mode(im)=storage.mode(h$dataclass)
 
   if (h$is_fixed_size) {
     # sparse image
     if (h$max_height == 1 && h$max_width == 1) {
-      # GJ TODO: Double check conversion of 2d indices matches matlab sub2ind
-      idx=h$nr*bb[,2]+bb[,1]
+      # FIXME when ncolors
+      idx=sub2ind2(c(h$nr, h$nc), bb[, 1:2], h$ncolors)
       im[idx] = data
     } else {
-      for (i in 1:npts) {
-        # GJ TODO - why -1 here?
-        xidx=bb[i,2]:bb[i,2]+h$max_height-1L
-        yidx=bb[i,1]:bb[i,1]+h$max_width-1L
-        im[, xidx, yidx] = data[,i,,]
+      for (i in seq_len(npts)) {
+        xidx=bb[i,2]:(bb[i,2]+h$max_height-1L)
+        yidx=bb[i,1]:(bb[i,1]+h$max_width-1L)
+        im[, xidx, yidx] = data[[i]]
       }
     }
   } else {
@@ -122,7 +120,26 @@ read.ufmf <- function(x, framei=NULL){
       im[, xidx, yidx] = data[[i]]
     }
   }
-  im = aperm(im, c(3, 2, 1))
-  mu = aperm(r$im, c(3, 2, 1))
-  list(im=im, header=h, timestamp=timestamp, bb=bb, mu=mu)
+  if(dim(im)[1]==1){
+    # drop singleton colour dimension
+    dim(im)=dim(im)[-1]
+    im=t(im)
+  } else {
+    im = aperm(im, c(3, 2, 1))
+  }
+
+  attr(im, 'timestamp')=timestamp
+  if(return.boxes)
+    attr(im, 'boxes')=bb
+  im
+}
+
+# simplified version of matlab/octave sub2ind for 2d indices + number of colours
+sub2ind2 <- function (dims, indices, ncols)
+{
+  k = cumprod(c(1, ncols, dims[1]))
+  i1=rep.int(indices[,1], rep.int(ncols, nrow(indices)))
+  i2=rep.int(indices[,2], rep.int(ncols, nrow(indices)))
+  ndx= 1:ncols + (i1-1)*k[2] + (i2-1)*k[3]
+  ndx
 }

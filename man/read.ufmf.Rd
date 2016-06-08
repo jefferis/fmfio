@@ -4,29 +4,21 @@
 \alias{read.ufmf}
 \title{Read frame from a ufmf format movie}
 \usage{
-read.ufmf(x, framei = NULL)
+read.ufmf(x, framei = NULL, return.boxes = FALSE)
 }
 \arguments{
 \item{x}{Either a path to a file on disk, a \code{\link{connection}} or a
 parsed ufmf header object (as returned by \code{\link{read.ufmf.header}})}
 
 \item{framei}{Integer index of the frame to read}
+
+\item{return.boxes}{Whether to return an matrix describing the position of
+pixels that differ from the mean image (see details, default \code{FALSE}).}
 }
 \value{
-A list containing the following elements \itemize{
-
-  \item{im} The requested video frame
-
-  \item{header} The header, which may have been modified
-
-  \item{timestamp} A timestamp (seconds in current epoch)
-
-  \item{bb} The location of the bounding boxes containing data significantly
-  different from the background image.
-
-  \item{mu} The mean (background) image corresponding to this frame
-
-  }
+An array/matrix containing the image data with the frame timestamp
+  and (optionally) boxes as attributes. MONO8 data will be returned as width
+  x height matrix, while RGB8 data will be a width x height x 3 array.
 }
 \description{
 Read frame from a ufmf format movie
@@ -34,12 +26,23 @@ Read frame from a ufmf format movie
 \details{
 When reading multiple frames, the recommended idiom is to read the
   header and store it in an object, then pass that object to read.ufmf along
-  with the integer index of the required frame.
+  with the integer index of the required frame. See \bold{examples}.
+
+  When present, bounding boxes for foreground pixels are returned in an N x 4
+  matrix where the four columns specify (x, y, width , height).
 }
 \examples{
 \dontrun{
 h=read.ufmf.header("movie.ufmf")
 frames=lapply(1:5, function(i) read.ufmf(h, i))
+
+## Show foreground boxes
+f5=read.ufmf(h, 5, return.boxes=TRUE)
+# plot image with integer pixel indices for x and y axes (rather than 0-1)
+image(1:nrow(f5), 1:ncol(f5), f5, useRaster = T)
+bb=attr(f5, "boxes")
+# plot rectangles for foreground boxes
+rect(bb[,1], bb[,2], bb[,1]+bb[,3], bb[,2]+bb[,4])
 }
 
 }
