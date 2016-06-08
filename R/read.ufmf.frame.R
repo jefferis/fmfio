@@ -5,21 +5,30 @@
 #'   with the integer index of the required frame. See \bold{examples}.
 #'
 #'   When present, bounding boxes for foreground pixels are returned in an N x 4
-#'   array where the four columns specify (x, y, width , height).
+#'   matrix where the four columns specify (x, y, width , height).
 #'
 #' @param x Either a path to a file on disk, a \code{\link{connection}} or a
 #'   parsed ufmf header object (as returned by \code{\link{read.ufmf.header}})
 #' @param framei Integer index of the frame to read
 #' @param return.boxes Whether to return an matrix describing the position of
 #'   pixels that differ from the mean image (see details, default \code{FALSE}).
-#' @return An array containing the image data with the frame timestamp as an
-#'   attribute.
+#' @return An array/matrix containing the image data with the frame timestamp
+#'   and (optionally) boxes as attributes. MONO8 data will be returned as width
+#'   x height matrix, while RGB8 data will be a width x height x 3 array.
 #' @seealso \code{\link{connection}}, \code{\link{read.ufmf.header}}
 #' @export
 #' @examples
 #' \dontrun{
 #' h=read.ufmf.header("movie.ufmf")
 #' frames=lapply(1:5, function(i) read.ufmf(h, i))
+#'
+#' ## Show foreground boxes
+#' f5=read.ufmf(h, 5, return.boxes=TRUE)
+#' # plot image with integer pixel indices for x and y axes (rather than 0-1)
+#' image(1:nrow(f5), 1:ncol(f5), f5, useRaster = T)
+#' bb=attr(f5, "boxes")
+#' # plot rectangles for foreground boxes
+#' rect(bb[,1], bb[,2], bb[,1]+bb[,3], bb[,2]+bb[,4])
 #' }
 #'
 read.ufmf <- function(x, framei=NULL, return.boxes=FALSE){
@@ -111,7 +120,14 @@ read.ufmf <- function(x, framei=NULL, return.boxes=FALSE){
       im[, xidx, yidx] = data[[i]]
     }
   }
-  im = aperm(im, c(3, 2, 1))
+  if(dim(im)[1]==1){
+    # drop singleton colour dimension
+    dim(im)=dim(im)[-1]
+    im=t(im)
+  } else {
+    im = aperm(im, c(3, 2, 1))
+  }
+
   attr(im, 'timestamp')=timestamp
   if(return.boxes)
     attr(im, 'boxes')=bb
