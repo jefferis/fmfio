@@ -6,6 +6,13 @@ functions to read and parse the intial header of a fmf file and then to read ind
 frames and timestamp information. fmf files are frequently used as intermediates for analysis
 of fly behaviour.
 
+## Formats
+
+There is support for both
+
+* FMF (simple raw format)
+* UFMF (compressed by background subtraction)
+
 ## Quick Start
 ```r
 # install
