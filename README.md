@@ -1,3 +1,5 @@
+[![Travis-CI Build Status](https://travis-ci.org/jefferis/fmfio.svg?branch=master)](https://travis-ci.org/jefferis/fmfio)
+
 # fmfio
 R package to support the 
 [FlyMovieFormat](http://code.astraw.com/projects/motmot/fly-movie-format.html)
