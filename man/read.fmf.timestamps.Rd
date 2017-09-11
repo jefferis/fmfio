@@ -15,4 +15,3 @@ Numeric vector of timestamps (seconds in current epoch)
 \description{
 Read the timestamp information from all frames in an fmf file
 }
-

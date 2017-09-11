@@ -16,4 +16,3 @@ movie file.
 \description{
 Read header for a ufmf (compressed FlyMovieFormat) movie
 }
-
