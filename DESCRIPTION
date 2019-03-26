@@ -1,8 +1,7 @@
 Package: fmfio
 Type: Package
 Title: Read the 'FlyMovieFormat' (fmf) video format
-Version: 0.1
-Date: 2016-05-25
+Version: 0.2
 Author: Gregory Jefferis and The Caltech Ethomics Project (copyright holder
     for original Matlab ufmf code which was translated/adapted to R)
 Maintainer: Gregory Jefferis <jefferis@gmail.com>
