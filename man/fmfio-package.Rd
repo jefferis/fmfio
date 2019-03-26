@@ -3,22 +3,37 @@
 \docType{package}
 \name{fmfio-package}
 \alias{fmfio-package}
+\alias{_PACKAGE}
 \alias{fmfio}
-\title{Read Fly Movie Format image time series}
+\title{fmfio: Read the 'FlyMovieFormat' (fmf) video format}
 \description{
-Read Fly Movie Format image time series
+R support for the 'FlyMovieFormat' video originally developed by
+    Andrew Straw and colleagues, initially at Caltech. Presently this provides
+    functions to read and parse the intial header of a 'fmf' file and then to
+    read individual images frames and timestamp information. 'fmf' files are
+    frequently used as intermediates for analysis of fly behaviour.
 }
 \details{
 There are two FMF formats: \itemize{
 
-\item{\bold{fmf}}{ A very simple uncompressed movie format.}
+  \item{\bold{fmf}}{ A very simple uncompressed movie format.}
 
-\item{\bold{ufmf}}{ Compressed format based on background subtraction that can
-provide very significant space savings.}
+  \item{\bold{ufmf}}{ Compressed format based on background subtraction that
+  can provide very significant space savings.}
 
-}
+  }
 }
 \seealso{
-\code{\link{read.fmf}}, \code{\link{read.ufmf}}
+\code{\link{read.fmf}}, \code{\link{read.ufmf}},
+  \url{https://jefferis.github.io/fmfio}
 }
-\keyword{package}
+\author{
+\strong{Maintainer}: Gregory Jefferis \email{jefferis@gmail.com} (0000-0002-0587-9355) [copyright holder]
+
+Other contributors:
+\itemize{
+  \item Caltech Ethomics Project (Original Matlab ufmf code was translated/adapted to R) [copyright holder]
+}
+
+}
+\keyword{internal}
