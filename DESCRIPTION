@@ -2,9 +2,12 @@ Package: fmfio
 Type: Package
 Title: Read the 'FlyMovieFormat' (fmf) video format
 Version: 0.2
-Author: Gregory Jefferis and The Caltech Ethomics Project (copyright holder
-    for original Matlab ufmf code which was translated/adapted to R)
-Maintainer: Gregory Jefferis <jefferis@gmail.com>
+Authors@R: c(
+    person("Gregory", "Jefferis", email = "jefferis@gmail.com",
+    role = c("aut", "cph", "cre"), comment = c(ORCID = "0000-0002-0587-9355")),
+    person("Caltech Ethomics Project", role=c("cph"),
+    comment="Original Matlab ufmf code was translated/adapted to R")
+    )
 Description: R support for the 'FlyMovieFormat' video originally developed by
     Andrew Straw and colleagues, initially at Caltech. Presently this provides
     functions to read and parse the intial header of a 'fmf' file and then to
