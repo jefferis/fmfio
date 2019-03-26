@@ -1,0 +1,15 @@
+reference:
+- title: Package Overview
+  desc: ~
+  contents:
+  - '`fmfio-package`'
+- title: FMF functions
+  desc: Regular uncompressed fly movie format
+  contents:
+  - '`read.fmf`'
+  - '`read.fmf.timestamps`'
+- title: UFMF functions
+  desc: Background-subtraction compressed fly move format
+  contents:
+  - '`read.ufmf`'
+  - '`read.ufmf.header`'
