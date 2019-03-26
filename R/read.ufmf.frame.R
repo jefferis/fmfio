@@ -89,7 +89,7 @@ read.ufmf <- function(x, framei=NULL, return.boxes=FALSE){
       data[[i]] = array(data[[i]],c(h$ncolors, height, width))
     }
     # images are read sideways
-    bb = bb[, c(2, 1, 4, 3)]
+    bb = bb[, c(2, 1, 4, 3), drop=FALSE]
   }
   # convert to 1-indexed
   bb[,1:2] = bb[,1:2]+1
